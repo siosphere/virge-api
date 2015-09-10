@@ -2,6 +2,7 @@
 namespace Virge\Api\Component;
 
 use Virge\Api;
+use Virge\Virge;
 
 /**
  *
@@ -65,9 +66,11 @@ class Method extends \Virge\Core\Model {
 
         if (!is_callable($call)) {
             $func = $this->versions[$version]['method'];
-            \Virge::service($call)->$func();
+            $controllerClassname = $call;
+            $controller = new $controllerClassname;
+            return $controller->$func();
         } else {
-            call_user_func($call);
+            return call_user_func($call);
         }
     }
 
