@@ -30,7 +30,7 @@ class ApiController {
         } else {
             try {
                 //attempt to call it!
-                $body = json_encode(Api::call($version, $method));
+                $body = json_encode(Api::call($version, $method, $request));
                 
             } catch (ApiException $ex) {
                 

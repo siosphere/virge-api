@@ -2,6 +2,7 @@
 namespace Virge\Api\Component;
 
 use Virge\Api;
+use Virge\Router\Component\Request;
 use Virge\Virge;
 
 /**
@@ -44,9 +45,10 @@ class Method extends \Virge\Core\Model {
     /**
      * Call the method and return the results
      * @param type $version
+     * @param Request $request
      * @throws Exception
      */
-    public function call($version) {
+    public function call($version, $request = null) {
         if (!isset($this->versions['all']) && !isset($this->versions[$version])) {
             throw new \RuntimeException('Invalid method call');
         }
@@ -68,9 +70,9 @@ class Method extends \Virge\Core\Model {
             $func = $this->versions[$version]['method'];
             $controllerClassname = $call;
             $controller = new $controllerClassname;
-            return $controller->$func();
+            return call_user_func_array(array($controller, $func), array($request));
         } else {
-            return call_user_func($call);
+            return call_user_func_array($call, array($request));
         }
     }
 

@@ -3,6 +3,7 @@ namespace Virge;
 
 use Virge\Api\Component\Method;
 use Virge\Api\Exception\ApiException;
+use Virge\Router\Component\Request;
 
 /**
  * 
@@ -52,11 +53,16 @@ class Api {
         self::$versions = $versions;
     }
 
+
     /**
-     * Call a function
+     * Call the given version and method
+     * @param string $api_version
+     * @param string $api_method
+     * @param Request $request
+     * @return type
      */
-    public static function call($api_version, $api_method) {
-        return self::$methods[$api_method]->call($api_version);
+    public static function call($api_version, $api_method, $request = null) {
+        return self::$methods[$api_method]->call($api_version, $request);
     }
 
     /**
