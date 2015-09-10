@@ -34,9 +34,9 @@ class ApiController {
                 
             } catch (ApiException $ex) {
                 
-                $body = array(
+                $body = json_encode(array(
                     "error"     =>      $ex->getMessage(),
-                );
+                ));
             }
         }
         
