@@ -23,6 +23,8 @@ class ApiController {
         $version = $request->getUrlParam('v');
         $method = $request->getUrlParam($version);
         
+        $statusCode = 200;
+        
         if(!Api::check($version, $method)) {
             $body = json_encode(array(
                 "error"     =>      "Api method does not exist, or missing version"
@@ -34,15 +36,20 @@ class ApiController {
                 
             } catch (ApiException $ex) {
                 
-                $body = json_encode(array(
-                    "error"     =>      $ex->getMessage(),
-                ));
+                if($ex->getData()) {
+                    $body = json_encode($ex->getData());
+                } else {
+                    $body = json_encode(array(
+                        "error"     =>      $ex->getMessage(),
+                    ));
+                }
+                
+                $statusCode = $ex->getStatusCode();
             }
         }
         
-        $response = new Response($body);
+        $response = new Response($body, $statusCode);
         $response->addHeader('Content-Type: application/json');
-        
         return $response;
     }
 }
