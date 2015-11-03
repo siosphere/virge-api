@@ -15,7 +15,7 @@ class Api {
     protected static $versions = array();
     protected static $errors = array();
     protected static $last_error = '';
-    protected static $verify = [];
+    protected static $verify = array();
     /**
      * Add a new API method
      * @param type $method_name
