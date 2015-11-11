@@ -16,32 +16,59 @@ class Api {
     protected static $errors = array();
     protected static $last_error = '';
     protected static $verify = array();
+
     /**
-     * Add a new API method
-     * @param type $method_name
-     * @return \ApiMethod
+     * @param string $method_name
+     * @return Method
      */
-    public static function method($method_name) {
-        $method = new Method();
-        $method->name = $method_name;
-        self::$methods[$method_name] = $method;
-
-        return $method;
+    public static function get($method_name) {
+        return self::method('get', $method_name);
     }
-
+    
+    /**
+     * @param string $method_name
+     * @return Method
+     */
+    public static function post($method_name) {
+        return self::method('post', $method_name);
+    }
+    
+    /**
+     * @param string $method_name
+     * @return Method
+     */
+    public static function put($method_name) {
+        return self::method('put', $method_name);
+    }
+    
+    /**
+     * @param string $method_name
+     * @return Method
+     */
+    public static function delete($method_name) {
+        return self::method('delete', $method_name);
+    }
+    
     /**
      * Make sure a version of the API exists and is active
      * @param string $version
      * @param string $api_method
+     * @param Request $request
      */
-    public static function check($version, $api_method) {
+    public static function check($version, $api_method, Request $request) {
+        
         if (in_array($version, self::$versions)) {
+            
+            $request_method = strtolower($request->getServer()->get('REQUEST_METHOD'));
+            
             //see if this api method exists for this specific version or for all
-            if (isset(self::$methods[$api_method]) && self::$methods[$api_method]->canCall($version)) {
+            if (isset(self::$methods[$request_method]) && isset(self::$methods[$request_method][$api_method]) && self::$methods[$request_method][$api_method]->canCall($version)) {
                 return true;
             }
+            
             return false;
         }
+        
         return false;
     }
 
@@ -61,8 +88,11 @@ class Api {
      * @param Request $request
      * @return type
      */
-    public static function call($api_version, $api_method, $request = null) {
-        return self::$methods[$api_method]->call($api_version, $request);
+    public static function call($api_version, $api_method, Request $request) {
+        
+        $request_method = strtolower($request->getServer()->get('REQUEST_METHOD'));
+        
+        return self::$methods[$request_method][$api_method]->call($api_version, $request);
     }
 
     /**
@@ -143,4 +173,19 @@ class Api {
         self::$verify[$name] = $callable;
     }
 
+    /**
+     * Add a new API method
+     * @param type $method_name
+     * @return \ApiMethod
+     */
+    protected static function method($request_method, $method_name) {
+        $method = new Method();
+        $method->name = $method_name;
+        if(!isset(self::$methods[$request_method])) {
+            self::$methods[$request_method] = array();
+        }
+        self::$methods[$request_method][$method_name] = $method;
+
+        return $method;
+    }
 }

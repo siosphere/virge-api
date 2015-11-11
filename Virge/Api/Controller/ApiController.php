@@ -25,7 +25,7 @@ class ApiController {
         
         $statusCode = 200;
         
-        if(!Api::check($version, $method)) {
+        if(!Api::check($version, $method, $request)) {
             $body = json_encode(array(
                 "error"     =>      "Api method does not exist, or missing version"
             ));
