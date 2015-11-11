@@ -21,7 +21,9 @@ class ApiController {
         //get my schtuff from the api
         //get version
         $version = $request->getUrlParam('v');
-        $method = $request->getUrlParam($version);
+        
+        $uri = $request->getURI();
+        $method = str_replace('api/v/' . $version . '/', '', $uri);
         
         $statusCode = 200;
         
