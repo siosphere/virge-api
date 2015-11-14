@@ -156,10 +156,10 @@ class Api {
      * @param string $name
      * @return boolean
      */
-    public static function verify($name) {
+    public static function verify($name, $request) {
         if (isset(self::$verify[$name])) {
             $func = self::$verify[$name];
-            return $func();
+            return call_user_func($func, $request);
         }
         return false;
     }

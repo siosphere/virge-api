@@ -58,7 +58,7 @@ class Method extends \Virge\Core\Model {
 
         if (!empty($this->verifiers)) {
             foreach ($this->verifiers as $verifier) {
-                if (!Api::verify($verifier)) {
+                if (!Api::verify($verifier, $request)) {
                     throw new \InvalidArgumentException('Invalid API Call');
                 }
             }
