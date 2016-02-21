@@ -31,6 +31,7 @@ class ApiController {
             $body = json_encode(array(
                 "error"     =>      "Api method does not exist, or missing version"
             ));
+            $statusCode = 400;
         } else {
             try {
                 //attempt to call it!
