@@ -10,16 +10,16 @@ use Virge\Router\Component\Response;
  * 
  * @author Michael Kramer
  */
-class ApiController {
+class ApiController 
+{
     
     /**
      * Our entry point!
      * @param Request $request
      * @return Response
      */
-    public function entry(Request $request) {
-        //get my schtuff from the api
-        //get version
+    public function entry(Request $request) 
+    {
         $version = $request->getUrlParam('v');
         
         $uri = $request->getURI();
@@ -35,7 +35,12 @@ class ApiController {
         } else {
             try {
                 //attempt to call it!
-                $body = json_encode(Api::call($version, $method, $request));
+                $result = Api::call($version, $method, $request);
+                if($result instanceof Response) {
+                    return $result;
+                }
+
+                $body = json_encode($result);
                 
             } catch (ApiException $ex) {
                 
