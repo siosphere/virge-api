@@ -2,6 +2,7 @@
 namespace Virge\Api\Component;
 
 use Virge\Api;
+use Virge\Api\Controller\ApiControllerInterface;
 use Virge\Router\Component\Request;
 use Virge\Virge;
 
@@ -36,7 +37,8 @@ class Method extends \Virge\Core\Model {
      * @param string $verifier
      * @return \Virge\Api\Component\Method
      */
-    public function verify($verifier) {
+    public function verify($verifier) 
+    {
         $this->verifiers[] = $verifier;
 
         return $this;
@@ -48,7 +50,8 @@ class Method extends \Virge\Core\Model {
      * @param Request $request
      * @throws Exception
      */
-    public function call($version, $request = null) {
+    public function call($version, $request = null) 
+    {
         if (!isset($this->versions['all']) && !isset($this->versions[$version])) {
             throw new \RuntimeException('Invalid method call');
         }
@@ -70,10 +73,15 @@ class Method extends \Virge\Core\Model {
             $func = $this->versions[$version]['method'];
             $controllerClassname = $call;
             $controller = new $controllerClassname;
-            return call_user_func_array(array($controller, $func), array($request));
-        } else {
-            return call_user_func_array($call, array($request));
+            $result = call_user_func_array([$controller, $func], [$request]);
+            if($controller instanceof ApiControllerInterface) {
+                return call_user_func_array([$controller, '_formatAPIResponse'], [$result]);
+            }
+
+            return $result;
         }
+
+        return call_user_func_array($call, array($request));
     }
 
     /**

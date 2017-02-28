@@ -1,5 +1,6 @@
 <?php
 
+use Virge\Api\Controller\EntryController;
 use Virge\Routes;
 
 /**
@@ -7,4 +8,4 @@ use Virge\Routes;
  * @author Michael Kramer
  */
 
-Routes::add('api', '\\Virge\\Api\\Controller\\ApiController', 'entry');
+Routes::add('api', EntryController::class, 'entry');

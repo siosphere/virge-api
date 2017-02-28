@@ -10,7 +10,7 @@ use Virge\Router\Component\Response;
  * 
  * @author Michael Kramer
  */
-class ApiController 
+class EntryController 
 {
     
     /**
