@@ -9,7 +9,9 @@ use Virge\Router\Component\Request;
  * 
  * @author Michael Kramer
  */
-class Api {
+class Api 
+{
+    const VALID_URI_REGEX = "/\{[a-z\_\-\+\.]+\}/i";
 
     protected static $methods = array();
     protected static $versions = array();
@@ -52,17 +54,19 @@ class Api {
     /**
      * Make sure a version of the API exists and is active
      * @param string $version
-     * @param string $api_method
+     * @param string $apiMethod
      * @param Request $request
      */
-    public static function check($version, $api_method, Request $request) {
+    public static function check($version, $apiMethod, Request $request) {
         
         if (in_array($version, self::$versions)) {
             
-            $request_method = strtolower($request->getServer()->get('REQUEST_METHOD'));
+            $requestMethod = strtolower($request->getServer()->get('REQUEST_METHOD'));
+
+            $apiMethod = self::getNormalizedRoute($requestMethod, $apiMethod, $request);
             
             //see if this api method exists for this specific version or for all
-            if (isset(self::$methods[$request_method]) && isset(self::$methods[$request_method][$api_method]) && self::$methods[$request_method][$api_method]->canCall($version)) {
+            if (isset(self::$methods[$requestMethod]) && isset(self::$methods[$requestMethod][$apiMethod]) && self::$methods[$requestMethod][$apiMethod]->canCall($version)) {
                 return true;
             }
             
@@ -70,6 +74,59 @@ class Api {
         }
         
         return false;
+    }
+
+    protected static function getNormalizedRoute($requestMethod, $requestedMethod, Request $request)
+    {
+        //check 1 to 1 match first
+        if(isset(self::$methods[$requestMethod][$requestedMethod])) {
+            return $requestedMethod;
+        }
+
+        //we need to match our given route 
+        $matchRoute = null;
+        foreach(self::$methods[$requestMethod] as $apiMethod => $apiDetails)
+        {
+            //only match routes that have dynamic variables
+            $result = preg_match(self::VALID_URI_REGEX, $apiMethod);
+            if(!$result) {
+                continue;
+            }
+
+            $routeParts = explode('/', $apiMethod);
+            $requestedParts = explode('/', $requestedMethod);
+
+            if(count($routeParts) !== count($requestedParts)) {
+                continue;
+            }
+
+            $i = 0;
+            $matched = true;
+
+            foreach($requestedParts as $requestedPart) {
+                //if we aren't a dynamic part of the url, check that we match 1 to 1
+                if(!preg_match(self::VALID_URI_REGEX, $routeParts[$i])) {
+                    if($requestedPart !== $routeParts[$i]) {
+                        $matched = false;
+                        break;
+                    }
+                } else {
+                    $paramName = str_replace(["{", "}"], '', $routeParts[$i]);
+                    $request->setUrlParam($paramName, $requestedPart);
+                }
+
+                $i++;
+            }
+
+            if(!$matched) {
+                continue;
+            }
+
+            return $apiMethod;
+        }
+
+        return null;
+
     }
 
     /**
@@ -88,11 +145,13 @@ class Api {
      * @param Request $request
      * @return type
      */
-    public static function call($api_version, $api_method, Request $request) {
+    public static function call($api_version, $apiMethod, Request $request) {
         
-        $request_method = strtolower($request->getServer()->get('REQUEST_METHOD'));
+        $requestMethod = strtolower($request->getServer()->get('REQUEST_METHOD'));
+
+        $apiMethod = self::getNormalizedRoute($requestMethod, $apiMethod, $request);
         
-        return self::$methods[$request_method][$api_method]->call($api_version, $request);
+        return self::$methods[$requestMethod][$apiMethod]->call($api_version, $request);
     }
 
     /**
