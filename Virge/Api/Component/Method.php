@@ -2,6 +2,7 @@
 namespace Virge\Api\Component;
 
 use Virge\Api;
+use Virge\Api\Exception\ApiException;
 use Virge\Api\Controller\ApiControllerInterface;
 use Virge\Router\Component\Request;
 use Virge\Virge;
@@ -53,7 +54,7 @@ class Method extends \Virge\Core\Model {
     public function call($version, $request = null) 
     {
         if (!isset($this->versions['all']) && !isset($this->versions[$version])) {
-            throw new \RuntimeException('Invalid method call');
+            throw new ApiException('Invalid method call');
         }
         if (!isset($this->versions[$version])) {
             $version = 'all';
@@ -62,7 +63,7 @@ class Method extends \Virge\Core\Model {
         if (!empty($this->verifiers)) {
             foreach ($this->verifiers as $verifier) {
                 if (!Api::verify($verifier, $request)) {
-                    throw new \InvalidArgumentException('Invalid API Call');
+                    throw new ApiException('Invalid API Call');
                 }
             }
         }

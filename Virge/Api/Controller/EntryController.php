@@ -26,35 +26,31 @@ class EntryController
         $method = str_replace('api/v/' . $version . '/', '', $uri);
         
         $statusCode = 200;
-        
-        if(!Api::check($version, $method, $request)) {
-            $body = json_encode(array(
-                "error"     =>      "Api method does not exist, or missing version"
-            ));
-            $statusCode = 400;
-        } else {
-            try {
-                //attempt to call it!
-                $result = Api::call($version, $method, $request);
-                if($result instanceof Response) {
-                    return $result;
-                }
-
-                $body = json_encode($result);
-                
-            } catch (ApiException $ex) {
-                
-                if($ex->getData()) {
-                    $body = json_encode($ex->getData());
-                } else {
-                    $body = json_encode(array(
-                        "error"     =>      $ex->getMessage(),
-                    ));
-                }
-                
-                $statusCode = $ex->getStatusCode();
+        try {
+            if(!Api::check($version, $method, $request)) {
+                throw new ApiException('Api method does not exist, or missing version');
             }
+             //attempt to call it!
+            $result = Api::call($version, $method, $request);
+            if($result instanceof Response) {
+                return $result;
+            }
+
+            $body = json_encode($result);
+            
+        } catch (ApiException $ex) {
+                
+            if($ex->getData()) {
+                $body = json_encode($ex->getData());
+            } else {
+                $body = json_encode(array(
+                    "error"     =>      $ex->getMessage(),
+                ));
+            }
+            
+            $statusCode = $ex->getStatusCode();
         }
+
         
         $response = new Response($body, $statusCode);
         $response->addHeader('Content-Type: application/json');
