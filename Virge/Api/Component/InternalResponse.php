@@ -1,5 +1,5 @@
 <?php
-namespace Virge\Api\Component\InternalResponse;
+namespace Virge\Api\Component;
 
 /**
  * Used to wrap internal API calls in a common message component
