@@ -12,7 +12,7 @@ class ApiWrapper
 {
     protected static $API_VERSION = '1';
     protected static $API_USE_HTTPS = false;
-    protected static $debug = false;
+    public static $debug = false;
     protected static $inited = false;
     protected static $url = '';
     protected static $result;
