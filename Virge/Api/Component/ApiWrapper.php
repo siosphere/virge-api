@@ -95,7 +95,7 @@ class ApiWrapper
         self::$lastMethodCalled = $url;
 
         if(static::$debug) {
-            self::logLastRequest();
+            static::logLastRequest();
         }
 
         if(!self::$info['http_code'] || self::$info['http_code'] < 200 || self::$info['http_code'] >= 300) {
