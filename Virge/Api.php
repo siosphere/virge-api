@@ -1,7 +1,10 @@
 <?php
 namespace Virge;
 
-use Virge\Api\Component\Method;
+use Virge\Api\Component\{
+    Method,
+    Method\Verifier
+};
 use Virge\Api\Exception\ApiException;
 use Virge\Router\Component\Request;
 
@@ -13,17 +16,18 @@ class Api
 {
     const VALID_URI_REGEX = "/\{[a-z\_\-\+\.]+\}/i";
 
-    protected static $methods = array();
-    protected static $versions = array();
-    protected static $errors = array();
+    protected static $methods = [];
+    protected static $versions = [];
+    protected static $errors = [];
     protected static $last_error = '';
-    protected static $verify = array();
+    protected static $verify = [];
 
     /**
      * @param string $method_name
      * @return Method
      */
-    public static function get($method_name) {
+    public static function get($method_name) 
+    {
         return self::method('get', $method_name);
     }
     
@@ -31,7 +35,8 @@ class Api
      * @param string $method_name
      * @return Method
      */
-    public static function post($method_name) {
+    public static function post($method_name) 
+    {
         return self::method('post', $method_name);
     }
     
@@ -39,7 +44,8 @@ class Api
      * @param string $method_name
      * @return Method
      */
-    public static function put($method_name) {
+    public static function put($method_name) 
+    {
         return self::method('put', $method_name);
     }
     
@@ -47,7 +53,8 @@ class Api
      * @param string $method_name
      * @return Method
      */
-    public static function delete($method_name) {
+    public static function delete($method_name) 
+    {
         return self::method('delete', $method_name);
     }
     
@@ -57,8 +64,8 @@ class Api
      * @param string $apiMethod
      * @param Request $request
      */
-    public static function check($version, $apiMethod, Request $request) {
-        
+    public static function check($version, $apiMethod, Request $request) 
+    {
         if (in_array($version, self::$versions)) {
             
             $requestMethod = strtolower($request->getServer()->get('REQUEST_METHOD'));
@@ -133,7 +140,8 @@ class Api
      * Set which API versions are enabled
      * @param array $versions
      */
-    public static function versions($versions = array()) {
+    public static function versions($versions = []) 
+    {
         self::$versions = $versions;
     }
 
@@ -145,7 +153,8 @@ class Api
      * @param Request $request
      * @return type
      */
-    public static function call($api_version, $apiMethod, Request $request) {
+    public static function call($api_version, $apiMethod, Request $request) 
+    {
         
         $requestMethod = strtolower($request->getServer()->get('REQUEST_METHOD'));
 
@@ -158,14 +167,16 @@ class Api
      * Define errors
      * @param type $errors
      */
-    public static function errors($errors = array()) {
+    public static function errors($errors = []) 
+    {
         self::$errors = $errors;
     }
 
     /**
      * Require a parameter, and validate with callback
      */
-    public static function validate($param_name, $validate = false, $arguments = array()) {
+    public static function validate($param_name, $validate = false, $arguments = []) 
+    {
         array_unshift($arguments, $param_name);
         if (is_array($validate)) {
             foreach ($validate as $validate_callback) {
@@ -185,7 +196,8 @@ class Api
      * Set an API Error
      * @param type $msg
      */
-    public static function error($msg) {
+    public static function error($msg) 
+    {
         self::$last_error = self::$errors[] = $msg;
     }
 
@@ -193,7 +205,8 @@ class Api
      * Get the last error
      * @return type
      */
-    public static function lastError() {
+    public static function lastError() 
+    {
         return self::$last_error;
     }
 
@@ -201,7 +214,8 @@ class Api
      * Clean/Retrieve input from POST
      * @param type $key
      */
-    public static function input($key) {
+    public static function input($key) 
+    {
 
         if (!filter_has_var(INPUT_POST, $key)) {
             return false;
@@ -215,11 +229,15 @@ class Api
      * @param string $name
      * @return boolean
      */
-    public static function verify($name, $request) {
+    public static function verify(Verifier $verifier, $request) 
+    {
+        $name = $verifier->getVerifier();
+
         if (isset(self::$verify[$name])) {
             $func = self::$verify[$name];
-            return call_user_func($func, $request);
+            return call_user_func_array($func, [$request, $verifier->getAdditionalParams()]);
         }
+
         return false;
     }
     
@@ -228,7 +246,8 @@ class Api
      * @param string $name
      * @param callable $callable
      */
-    public static function verifier($name, $callable) {
+    public static function verifier($name, $callable) 
+    {
         self::$verify[$name] = $callable;
     }
 
@@ -237,11 +256,12 @@ class Api
      * @param type $method_name
      * @return \ApiMethod
      */
-    protected static function method($request_method, $method_name) {
+    protected static function method($request_method, $method_name) 
+    {
         $method = new Method();
         $method->name = $method_name;
         if(!isset(self::$methods[$request_method])) {
-            self::$methods[$request_method] = array();
+            self::$methods[$request_method] = [];
         }
         self::$methods[$request_method][$method_name] = $method;
 

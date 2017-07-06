@@ -3,6 +3,7 @@ namespace Virge\Api\Component;
 
 use Virge\Api;
 use Virge\Api\Exception\ApiException;
+use Virge\Api\Component\Method\Verifier;
 use Virge\Api\Controller\ApiControllerInterface;
 use Virge\Router\Component\Request;
 use Virge\Virge;
@@ -17,8 +18,8 @@ class Method extends \Virge\Core\Model {
      *
      * @var type 
      */
-    protected $versions = array();
-    protected $verifiers = array();
+    protected $versions = [];
+    protected $verifiers = [];
 
     /**
      * Set a version of the method to a callback
@@ -38,9 +39,9 @@ class Method extends \Virge\Core\Model {
      * @param string $verifier
      * @return \Virge\Api\Component\Method
      */
-    public function verify($verifier) 
+    public function verify(string $verifier, $additionalParams = []) 
     {
-        $this->verifiers[] = $verifier;
+        $this->verifiers[] = new Verifier($verifier, $additionalParams);
 
         return $this;
     }
