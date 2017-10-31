@@ -31,7 +31,9 @@ class EntryController
             if(!Api::check($version, $method, $request)) {
                 throw new ApiException('Api method does not exist, or missing version');
             }
-             //attempt to call it!
+            //pass the request through the middleware before calling our request
+            $request = Api::executeMiddleWare($version, $method, $request);
+            //attempt to call it!
             $result = Api::call($version, $method, $request);
             if($result instanceof Response) {
                 return $result;

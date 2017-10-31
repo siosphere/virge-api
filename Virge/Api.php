@@ -2,6 +2,7 @@
 namespace Virge;
 
 use Virge\Api\Component\{
+    IMiddleWare,
     Method,
     Method\Verifier
 };
@@ -21,6 +22,7 @@ class Api
     protected static $errors = [];
     protected static $last_error = '';
     protected static $verify = [];
+    protected static $middleWare = [];
 
     /**
      * @param string $method_name
@@ -249,6 +251,20 @@ class Api
     public static function verifier($name, $callable) 
     {
         self::$verify[$name] = $callable;
+    }
+
+    public static function middleWare(IMiddleWare $middleWare)
+    {
+        self::$middleWare[] = $middleWare;
+    }
+
+    public static function executeMiddleWare(string $version, string $method, Request $request)
+    {
+        foreach(self::$middleWare as $middleWare) {
+            $request = $middleWare->apply($version, $method, $request);
+        }
+
+        return $request;
     }
 
     /**
