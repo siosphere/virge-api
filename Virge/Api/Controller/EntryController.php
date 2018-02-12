@@ -52,16 +52,10 @@ class EntryController
             }
             
             $statusCode = $ex->getStatusCode();
-        } catch(\Exception $ex) {
+        } catch(\Throwable $ex) {
             $log = Virge::service("virge.core.log")->exception($ex);
             $body = json_encode([
                 "error" => Virge::getEnvironment() === 'dev' ? $ex->getMessage() : "An unknown error has occurred"
-            ]);
-            $statusCode = 500;
-        } catch(\Throwable $t) {
-            $log = Virge::service("virge.core.log")->error($t->getMessage());
-            $body = json_encode([
-                "error" => Virge::getEnvironment() === 'dev' ? $t->getMessage() : "An unknown error has occurred"
             ]);
             $statusCode = 500;
         }
