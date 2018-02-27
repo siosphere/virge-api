@@ -1,7 +1,7 @@
 {
     "name": "virge/api",
     "require": {
-        "virge/core": "~1.0.4"
+        "virge/core": "~2.0.0"
     },
     "autoload": {
         "psr-4": {"Virge\\": "Virge/"}
