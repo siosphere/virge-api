@@ -59,7 +59,25 @@ class Api
     {
         return self::method('delete', $method_name);
     }
-    
+
+    /**
+     * @param string $method_name
+     * @return Method
+     */
+    public static function options($method_name)
+    {
+        return self::method('options', $method_name);
+    }
+
+    /**
+     * @param string $method_name
+     * @return Method
+     */
+    public static function patch($method_name)
+    {
+        return self::method('patch', $method_name);
+    }
+
     /**
      * Make sure a version of the API exists and is active
      * @param string $version
